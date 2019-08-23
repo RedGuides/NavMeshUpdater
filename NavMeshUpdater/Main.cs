@@ -23,12 +23,11 @@ namespace NavMeshUpdater
         public static int OverallDownloadPct { get; set; } = 0;
         public static bool pDownloading = false;
         public int localCount, remoteCount, missingCount, updateCount;
+        public static string RemoteFile;
         public static Dictionary<string, string> LocalFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> RemoteFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> MissingFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> ToUpdateFileStore = new Dictionary<string, string>();
-        public static Zone zone = new Zone();
-        // Where to put the files
         public static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
 
         public void UpdateLocalCount()
@@ -46,11 +45,14 @@ namespace NavMeshUpdater
 
         public void UpdateRemoteCount()
         {
+            var zone = Zone.FromJson(RemoteFile);
             if (zone.Zones.Count() > 0)
             {
                 foreach (KeyValuePair<string, ZoneValue> z in zone.Zones)
                 {
-                    RemoteFileStore.Add(z.Value.Shortname, z.Value.Files.Mesh.Hash + "|" + z.Value.Files.Mesh.Size + "|" + z.Value.Files.Mesh.Link);
+                    var str = z.ToString();
+                    var wrd = str.Split(',');
+                    RemoteFileStore.Add(wrd[0].ToString().Replace("[", ""), z.Value.Files.Mesh.Hash + "|" + z.Value.Files.Mesh.Size + "|" + z.Value.Expansion + "|" + z.Value.Files.Mesh.Link);
                 }
                 remoteCount = zone.Zones.Count();
                 label2.Text = "Remote Files: " + remoteCount.ToString();
@@ -82,8 +84,7 @@ namespace NavMeshUpdater
                 {
                     using (var wc = new WebClient())
                     {
-                        var remoteFile = wc.DownloadString(updaterJsonURL);
-                        zone = Zone.FromJson(remoteFile);
+                        RemoteFile = wc.DownloadString(updaterJsonURL);
                     }
                 }
             }

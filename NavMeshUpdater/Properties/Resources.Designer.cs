@@ -71,12 +71,12 @@ namespace NavMeshUpdater.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
         /// </summary>
-        internal static System.Drawing.Bitmap helm {
+        internal static System.Drawing.Icon compass_rose3_icon {
             get {
-                object obj = ResourceManager.GetObject("helm", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
+                object obj = ResourceManager.GetObject("compass_rose3_icon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

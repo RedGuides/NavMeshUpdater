@@ -38,6 +38,7 @@
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -51,7 +52,6 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.label6 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -62,9 +62,6 @@
             // 
             // menuStrip1
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(481, 24);
@@ -138,6 +135,15 @@
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Statistics";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(122, 30);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(100, 13);
+            this.label6.TabIndex = 6;
+            this.label6.Text = "Updates Needed: 0";
             // 
             // label5
             // 
@@ -266,15 +272,6 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Select";
             this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(122, 30);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(100, 13);
-            this.label6.TabIndex = 6;
-            this.label6.Text = "Updates Needed: 0";
             // 
             // Main
             // 
