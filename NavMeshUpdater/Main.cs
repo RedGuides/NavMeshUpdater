@@ -16,7 +16,7 @@ namespace NavMeshUpdater
 {
     public partial class Main : Form
     {
-        public static bool DEBUG = true;
+        public static bool DEBUG = false;
         public static string updaterJsonURL = "https://rootswitch.com/mirror/MQ2/MQ2Nav/updater.json";
         public static bool pInit = false;
         public static int CurrentDownloadPct { get; set; } = 0;
@@ -40,6 +40,7 @@ namespace NavMeshUpdater
             label5.Text = "Missing Files: " + missingCount.ToString();
             label6.Text = "Updates Needed: " + updateCount.ToString();
             groupBox2.Text = "Current File: " + CurrentFile;
+            
             if (ActiveForm != null && ActiveForm.Visible)
             {
                 ActiveForm.Refresh();
@@ -178,10 +179,10 @@ namespace NavMeshUpdater
 
         public Main()
         {
-            SplashScreen.ShowSplashScreen();
             InitializeComponent();
             if (!pInit)
             {
+                SplashScreen.ShowSplashScreen();
                 if (Properties.Settings.Default.updateMissing)
                 {
                     checkBox1.Checked = true;
@@ -203,15 +204,12 @@ namespace NavMeshUpdater
                 UpdateRemoteFiles();
                 UpdateMissingFiles();
                 CheckForUpdates();
-                label3.Text = CurrentDownloadPct + "%";
-                label4.Text = OverallDownloadPct + "%";
-                groupBox1.Refresh();
+                Thread.Sleep(2000);
+                SplashScreen.CloseForm();
+                pInit = true;
             }
-            Thread.Sleep(2000);
-            SplashScreen.CloseForm();
             textBox1.Text = "Idle";
             UpdateUI();
-            pInit = true;
         }
 
         // Open PM on forum for Bug Request
@@ -245,7 +243,10 @@ namespace NavMeshUpdater
                         string fn = md.Key.ToString();
                         string fl = md.Value.ToString();
                         var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
-                        Console.WriteLine("Download Complete - " + success);
+                        if (DEBUG)
+                        {
+                            Console.WriteLine("Download Complete - " + success);
+                        }
                         doneCount++;
                         missingCount--;
                         localCount++;
@@ -261,7 +262,10 @@ namespace NavMeshUpdater
                         string fn = tu.Key.ToString();
                         string fl = tu.Value.ToString();
                         var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
-                        Console.WriteLine("Download Complete - " + success);
+                        if (DEBUG)
+                        {
+                            Console.WriteLine("Download Complete - " + success);
+                        }
                         doneCount++;
                         updateCount--;
                     }
