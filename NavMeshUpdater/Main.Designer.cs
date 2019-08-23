@@ -92,7 +92,7 @@
             // exitToolStripMenuItem1
             // 
             this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
-            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem1.Size = new System.Drawing.Size(93, 22);
             this.exitToolStripMenuItem1.Text = "E&xit";
             this.exitToolStripMenuItem1.Click += new System.EventHandler(this.ExitToolStripMenuItem1_Click);
             // 
@@ -109,14 +109,14 @@
             // bugReportToolStripMenuItem
             // 
             this.bugReportToolStripMenuItem.Name = "bugReportToolStripMenuItem";
-            this.bugReportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.bugReportToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.bugReportToolStripMenuItem.Text = "&Bug Report";
             this.bugReportToolStripMenuItem.Click += new System.EventHandler(this.BugReportToolStripMenuItem_Click);
             // 
             // featureRequestToolStripMenuItem1
             // 
             this.featureRequestToolStripMenuItem1.Name = "featureRequestToolStripMenuItem1";
-            this.featureRequestToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.featureRequestToolStripMenuItem1.Size = new System.Drawing.Size(158, 22);
             this.featureRequestToolStripMenuItem1.Text = "F&eature Request";
             this.featureRequestToolStripMenuItem1.Click += new System.EventHandler(this.FeatureRequestToolStripMenuItem1_Click);
             // 
@@ -383,7 +383,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Main";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Navmesh Updater";
+            this.LocationChanged += new System.EventHandler(this.MainForm_LocationChanged);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.groupBox1.ResumeLayout(false);

@@ -2,8 +2,8 @@
 using System.IO;
 using System.Net;
 using System.Linq;
+using System.Drawing;
 using System.Threading;
-using System.Reflection;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
@@ -210,6 +210,12 @@ namespace NavMeshUpdater
                 SplashScreen.CloseForm();
                 pInit = true;
             }
+            Point LocPoint = new Point
+            {
+                X = Properties.Settings.Default.LocX,
+                Y = Properties.Settings.Default.LocY
+            };
+            this.Location = LocPoint;
             textBox1.Text = "Idle";
             UpdateUI();
             this.WindowState = FormWindowState.Minimized;
@@ -313,6 +319,13 @@ namespace NavMeshUpdater
 
         // Exit Application
         private void ExitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
+
+        private void MainForm_LocationChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.LocX = Location.X;
+            Properties.Settings.Default.LocY = Location.Y;
+            Properties.Settings.Default.Save();
+        }
 
         private void CheckBox1_CheckedChanged(object sender, EventArgs e)
         {
