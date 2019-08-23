@@ -4,14 +4,11 @@ using System.Net;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using System.ComponentModel;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
 using System.Diagnostics;
-
-using Newtonsoft.Json;
-//using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 using Json;
 
@@ -24,9 +21,8 @@ namespace NavMeshUpdater
         public static bool pInit = false;
         public static int CurrentDownloadPct { get; set; } = 0;
         public static int OverallDownloadPct { get; set; } = 0;
-        public static bool pDownloading = false;
         public int localCount, remoteCount, missingCount, updateCount, totalCount, doneCount;
-        public static string RemoteFile;
+        public static string RemoteFile, CurrentFile;
         public static Dictionary<string, string> LocalFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> RemoteFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> MissingFileStore = new Dictionary<string, string>();
@@ -34,11 +30,27 @@ namespace NavMeshUpdater
         public static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
         public static readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
 
+        public void UpdateUI()
+        {
+            label1.Text = "Local Files: " + localCount.ToString();
+            progressBar1.Value = CurrentDownloadPct;
+            label3.Text = CurrentDownloadPct.ToString() + "%";
+            progressBar2.Value = OverallDownloadPct;
+            label4.Text = OverallDownloadPct.ToString() + "%";
+            label5.Text = "Missing Files: " + missingCount.ToString();
+            label6.Text = "Updates Needed: " + updateCount.ToString();
+            groupBox2.Text = "Current File: " + CurrentFile;
+            if (ActiveForm != null && ActiveForm.Visible)
+            {
+                ActiveForm.Refresh();
+            }
+        }
+
         public void UpdateOverAllPct(int done, int total)
         {
-            double calc = (done / total * 100);
-            OverallDownloadPct = (int)Math.Truncate(calc);
-            groupBox3.Refresh();
+            int count = ((done*100)/total) + 1;
+            OverallDownloadPct = count;
+            UpdateUI();
         }
         public void UpdateLocalFiles()
         {
@@ -137,7 +149,7 @@ namespace NavMeshUpdater
                         {
                             Console.WriteLine(wrd[0] + "," + z.Value.Files.Mesh.Link.ToString());
                         }
-                        ToUpdateFileStore.Add(wrd[0],z.Value.Files.Mesh.Link.ToString());
+                        ToUpdateFileStore.Add(wrd[0], z.Value.Files.Mesh.Link.ToString());
                     }
                 }
             }
@@ -170,6 +182,22 @@ namespace NavMeshUpdater
             InitializeComponent();
             if (!pInit)
             {
+                if (Properties.Settings.Default.updateMissing)
+                {
+                    checkBox1.Checked = true;
+                }
+                else
+                {
+                    checkBox1.Checked = false;
+                }
+                if (Properties.Settings.Default.updateUpdates)
+                {
+                    checkBox2.Checked = true;
+                }
+                else
+                {
+                    checkBox2.Checked = false;
+                }
                 GetRemoteUpdateFile();
                 UpdateLocalFiles();
                 UpdateRemoteFiles();
@@ -178,20 +206,12 @@ namespace NavMeshUpdater
                 label3.Text = CurrentDownloadPct + "%";
                 label4.Text = OverallDownloadPct + "%";
                 groupBox1.Refresh();
-
-
                 pInit = true;
-            }
-            if (pDownloading)
-            {
-                label3.Text = CurrentDownloadPct + "%";
-                label4.Text = OverallDownloadPct + "%";
-                groupBox1.Refresh();
             }
             Thread.Sleep(2000);
             SplashScreen.CloseForm();
-
         }
+
         // Open PM on forum for Bug Request
         private void ReportBugToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
         // Open PM on forum for Feature Request
@@ -199,21 +219,73 @@ namespace NavMeshUpdater
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            DialogResult dr = MessageBox.Show("Are you sure you wish to do this?" + Environment.NewLine + Environment.NewLine + "This will overwrite any custom meshes you have created. If you have not created any custom meshes, or wish to overwrite your custom meshes, you may proceed.", "Confirmation: Are you Sure?", MessageBoxButtons.YesNo,MessageBoxIcon.Warning);
+            DialogResult dr = MessageBox.Show("Are you sure you wish to do this?" + Environment.NewLine + Environment.NewLine + "This will overwrite any custom meshes you have created. If you have not created any custom meshes, or wish to overwrite your custom meshes, you may proceed.", "Confirmation: Are you Sure?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dr == DialogResult.Yes)
             {
                 button1.Enabled = false;
+                int mCount = MissingFileStore.Count();
+                int uCount = ToUpdateFileStore.Count();
+                if (checkBox1.Checked)
+                {
+                    totalCount += mCount;
+                }
+                if (checkBox2.Checked)
+                {
+                    totalCount += uCount;
+                }
 
-                totalCount = MissingFileStore.Count() + ToUpdateFileStore.Count();
-                doneCount = 0;
+                if (checkBox1.Checked)
+                {
+                    textBox1.Text = "Downloading Missing Files";
+                    UpdateUI();
+                    foreach (KeyValuePair<String, String> md in MissingFileStore)
+                    {
+                        string fn = md.Key.ToString();
+                        string fl = md.Value.ToString();
+                        var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
+                        Console.WriteLine("Download Complete - " + success);
+                        doneCount++;
+                        missingCount--;
+                        localCount++;
+                    }
+                }
 
+                if (checkBox2.Checked)
+                {
+                    textBox1.Text = "Downloading Updates";
+                    UpdateUI();
+                    foreach (KeyValuePair<String, String> tu in ToUpdateFileStore)
+                    {
+                        string fn = tu.Key.ToString();
+                        string fl = tu.Value.ToString();
+                        var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
+                        Console.WriteLine("Download Complete - " + success);
+                        doneCount++;
+                        updateCount--;
+                    }
+                }
+
+                textBox1.Text = "Updating Local Database";
+                UpdateUI();
                 button1.Enabled = true;
                 GetRemoteUpdateFile();
+                LocalFileStore.Clear();
                 UpdateLocalFiles();
+                RemoteFileStore.Clear();
                 UpdateRemoteFiles();
-                UpdateMissingFiles();
-                CheckForUpdates();
-                groupBox1.Refresh();
+                if (checkBox1.Checked)
+                {
+                    MissingFileStore.Clear();
+                    UpdateMissingFiles();
+                }
+                if (checkBox2.Checked)
+                {
+                    ToUpdateFileStore.Clear();
+                    CheckForUpdates();
+                }
+                OverallDownloadPct = 0;
+                textBox1.Text = "Idle";
+                UpdateUI();
             }
             else if (dr == DialogResult.No)
             {
@@ -224,8 +296,73 @@ namespace NavMeshUpdater
         // Exit Application
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
         private void QuitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
+
+        private void CheckBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.updateMissing = checkBox1.Checked;
+            Properties.Settings.Default.Save();
+        }
+
+        private void CheckBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.updateUpdates = checkBox2.Checked;
+            Properties.Settings.Default.Save();
+        }
+
         public static void ErrorMessage(string title, string error) => MessageBox.Show(error, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
+        public bool downloadComplete = false;
+        public int counter;
+        public bool DownloadFile(string url, string fullPathWhereToSave, string filename)
+        {
+            try
+            {
+                CurrentFile = filename;
+                System.IO.Directory.CreateDirectory(Path.GetDirectoryName(fullPathWhereToSave));
 
+                if (File.Exists(fullPathWhereToSave))
+                {
+                    File.Delete(fullPathWhereToSave);
+                }
+                using (WebClient client = new WebClient())
+                {
+                    var ur = new Uri(url);
+                    client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(WebClientDownloadProgressChanged);
+                    client.DownloadFileCompleted += WebClientDownloadCompleted;
+                    client.DownloadFileAsync(ur, fullPathWhereToSave);
+                    while (!downloadComplete)
+                    {
+                        Application.DoEvents();
+                    }
+                    downloadComplete = false;
+                    return File.Exists(fullPathWhereToSave);
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorMessage("Download Error", "Unable to complete file download. Please try again or use the menu Help -> Bug Report." + Environment.NewLine + "Error: " + e);
+                CurrentDownloadPct = 0;
+                return false;
+            }
+        }
+
+        public void WebClientDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            counter++;
+            if (counter % 333 == 0)
+            {
+                CurrentDownloadPct = e.ProgressPercentage;
+                UpdateUI();
+            }
+        }
+
+        public void WebClientDownloadCompleted(object sender, AsyncCompletedEventArgs args)
+        {
+            CurrentFile = "none";
+            downloadComplete = true;
+            CurrentDownloadPct = 0;
+            UpdateOverAllPct(doneCount, totalCount);
+            UpdateUI();
+        }
     }
 }

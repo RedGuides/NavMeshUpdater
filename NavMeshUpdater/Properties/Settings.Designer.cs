@@ -22,5 +22,29 @@ namespace NavMeshUpdater.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool updateMissing {
+            get {
+                return ((bool)(this["updateMissing"]));
+            }
+            set {
+                this["updateMissing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool updateUpdates {
+            get {
+                return ((bool)(this["updateUpdates"]));
+            }
+            set {
+                this["updateUpdates"] = value;
+            }
+        }
     }
 }
