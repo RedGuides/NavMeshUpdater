@@ -17,6 +17,7 @@ namespace NavMeshUpdater
 {
     public partial class Main : Form
     {
+        public static bool DEBUG = true;
         public static string updaterJsonURL = "https://rootswitch.com/mirror/MQ2/MQ2Nav/updater.json";
         public static bool pInit = false;
         public static int CurrentDownloadPct { get; set; } = 0;
@@ -35,8 +36,16 @@ namespace NavMeshUpdater
             DirectoryInfo di = new DirectoryInfo(currentDirectory);
             var localFiles = di.GetFiles("*.navmesh", SearchOption.TopDirectoryOnly);
             // Create a dictionary to compare against for updates.
+            if (DEBUG)
+            {
+                Console.WriteLine("#################### LOCAL FILE STORE ####################");
+            }
             foreach (FileInfo file in localFiles)
             {
+                if (DEBUG)
+                {
+                    Console.WriteLine(file.Name.Replace(".navmesh", ""), Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
+                }
                 LocalFileStore.Add(file.Name.Replace(".navmesh", ""), Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
             }
             localCount = (localFiles.Length > 0) ? localFiles.Length : 0;
@@ -48,11 +57,19 @@ namespace NavMeshUpdater
             var zone = Zone.FromJson(RemoteFile);
             if (zone.Zones.Count() > 0)
             {
+                if (DEBUG)
+                {
+                    Console.WriteLine("#################### REMOTE FILE STORE ####################");
+                }
                 foreach (KeyValuePair<string, ZoneValue> z in zone.Zones)
                 {
-                    var str = z.ToString();
+                    var str = z.ToString().Replace("[","");
                     var wrd = str.Split(',');
-                    RemoteFileStore.Add(wrd[0].ToString().Replace("[", ""), z.Value.Files.Mesh.Hash + "|" + z.Value.Files.Mesh.Size + "|" + z.Value.Expansion + "|" + z.Value.Files.Mesh.Link);
+                    if (DEBUG)
+                    {
+                        Console.WriteLine(wrd[0].ToString() + "," + z.Value.Files.Mesh.Hash + "|" + z.Value.Files.Mesh.Size + "|" + z.Value.Expansion + "|" + z.Value.Files.Mesh.Link);
+                    }
+                    RemoteFileStore.Add(wrd[0].ToString(), z.Value.Files.Mesh.Hash + "|" + z.Value.Files.Mesh.Size + "|" + z.Value.Expansion + "|" + z.Value.Files.Mesh.Link);
                 }
                 remoteCount = zone.Zones.Count();
                 label2.Text = "Remote Files: " + remoteCount.ToString();
