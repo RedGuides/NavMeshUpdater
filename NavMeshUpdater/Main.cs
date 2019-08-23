@@ -223,6 +223,9 @@ namespace NavMeshUpdater
             }
             textBox1.Text = "Idle";
             UpdateUI();
+            this.WindowState = FormWindowState.Minimized;
+            this.Show();
+            this.WindowState = FormWindowState.Normal;
         }
 
         // Open PM on forum for Bug Request
@@ -253,16 +256,19 @@ namespace NavMeshUpdater
                     UpdateUI();
                     foreach (KeyValuePair<String, String> md in MissingFileStore)
                     {
-                        string fn = md.Key.ToString();
-                        string fl = md.Value.ToString();
-                        var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
-                        if (DEBUG)
+                        if (!this.IsDisposed)
                         {
-                            Console.WriteLine("Download Complete - " + success);
+                            string fn = md.Key.ToString();
+                            string fl = md.Value.ToString();
+                            var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
+                            if (DEBUG)
+                            {
+                                Console.WriteLine("Download Complete - " + success);
+                            }
+                            doneCount++;
+                            missingCount--;
+                            localCount++;
                         }
-                        doneCount++;
-                        missingCount--;
-                        localCount++;
                     }
                 }
 
@@ -272,15 +278,18 @@ namespace NavMeshUpdater
                     UpdateUI();
                     foreach (KeyValuePair<String, String> tu in ToUpdateFileStore)
                     {
-                        string fn = tu.Key.ToString();
-                        string fl = tu.Value.ToString();
-                        var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
-                        if (DEBUG)
+                        if (!this.IsDisposed)
                         {
-                            Console.WriteLine("Download Complete - " + success);
+                            string fn = tu.Key.ToString();
+                            string fl = tu.Value.ToString();
+                            var success = DownloadFile(fl, meshDirectory + "\\" + fn + ".navmesh", fn + ".navmesh");
+                            if (DEBUG)
+                            {
+                                Console.WriteLine("Download Complete - " + success);
+                            }
+                            doneCount++;
+                            updateCount--;
                         }
-                        doneCount++;
-                        updateCount--;
                     }
                 }
 
