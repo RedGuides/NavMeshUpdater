@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Net.NetworkInformation;
 
 using System.Diagnostics;
@@ -17,21 +18,21 @@ namespace NavMeshUpdater
 {
     public partial class Main : Form
     {
-        public static bool DEBUG = false;
-        public static string updaterJsonURL = "https://rootswitch.com/mirror/MQ2/MQ2Nav/updater.json";
-        public static bool pInit = false;
-        public static int CurrentDownloadPct { get; set; } = 0;
-        public static int OverallDownloadPct { get; set; } = 0;
-        public int localCount, remoteCount, missingCount, updateCount, totalCount, doneCount;
-        public static string RemoteFile, CurrentFile;
-        public static Dictionary<string, string> LocalFileStore = new Dictionary<string, string>();
-        public static Dictionary<string, string> RemoteFileStore = new Dictionary<string, string>();
-        public static Dictionary<string, string> MissingFileStore = new Dictionary<string, string>();
-        public static Dictionary<string, string> ToUpdateFileStore = new Dictionary<string, string>();
-        public static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
-        public static readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
+        private bool DEBUG = false;
+        public static readonly string updaterJsonURL = "https://rootswitch.com/mirror/MQ2/MQ2Nav/updater.json";
+        private bool pInit, downloadComplete;
+        private int CurrentDownloadPct { get; set; } = 0;
+        private int OverallDownloadPct { get; set; } = 0;
+        private int localCount, remoteCount, missingCount, updateCount, totalCount, doneCount, counter;
+        private string RemoteFile, CurrentFile;
+        private Dictionary<string, string> LocalFileStore = new Dictionary<string, string>();
+        private Dictionary<string, string> RemoteFileStore = new Dictionary<string, string>();
+        private Dictionary<string, string> MissingFileStore = new Dictionary<string, string>();
+        private Dictionary<string, string> ToUpdateFileStore = new Dictionary<string, string>();
+        private static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+        private readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
 
-        public void UpdateUI()
+        private void UpdateUI()
         {
             label1.Text = "Local Files: " + localCount.ToString();
             progressBar1.Value = CurrentDownloadPct;
@@ -48,13 +49,13 @@ namespace NavMeshUpdater
             }
         }
 
-        public void UpdateOverAllPct(int done, int total)
+        private void UpdateOverAllPct(int done, int total)
         {
             int count = ((done*100)/total) + 1;
             OverallDownloadPct = count;
             UpdateUI();
         }
-        public void UpdateLocalFiles()
+        private void UpdateLocalFiles()
         {
             DirectoryInfo di = new DirectoryInfo(meshDirectory);
             if (!di.Exists) { di.Create(); }
@@ -68,17 +69,17 @@ namespace NavMeshUpdater
             {
                 if (DEBUG)
                 {
-                    Console.WriteLine(file.Name.Replace(".navmesh", "") + "," + Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
+                    Console.WriteLine(file.Name.Replace(".navmesh", "") + "," + CalculateMD5(file.FullName) + "|" + file.FullName);
                 }
-                LocalFileStore.Add(file.Name.Replace(".navmesh", ""), Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
+                LocalFileStore.Add(file.Name.Replace(".navmesh", ""), CalculateMD5(file.FullName) + "|" + file.FullName);
             }
             localCount = (localFiles.Length > 0) ? localFiles.Length : 0;
             label1.Text = "Local Files: " + localCount.ToString();
         }
 
-        public void UpdateRemoteFiles()
+        private void UpdateRemoteFiles()
         {
-            var zone = Zone.FromJson(RemoteFile);
+            Zone zone = Zone.FromJson(RemoteFile);
             if (zone.Zones.Count() > 0)
             {
                 if (DEBUG)
@@ -104,7 +105,7 @@ namespace NavMeshUpdater
             }
         }
 
-        public void UpdateMissingFiles()
+        private void UpdateMissingFiles()
         {
             var zone = Zone.FromJson(RemoteFile);
             if (DEBUG)
@@ -129,7 +130,7 @@ namespace NavMeshUpdater
 
         }
 
-        public void CheckForUpdates()
+        private void CheckForUpdates()
         {
             var zone = Zone.FromJson(RemoteFile);
             if (DEBUG)
@@ -159,7 +160,7 @@ namespace NavMeshUpdater
             label6.Text = "Updates Needed: " + updateCount.ToString();
         }
 
-        public void GetRemoteUpdateFile()
+        private void GetRemoteUpdateFile()
         {
             try
             {
@@ -178,7 +179,7 @@ namespace NavMeshUpdater
 
         }
 
-        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("NavMeshUpdater.Resources.Newtonsoft.Json.dll"))
             {
@@ -225,9 +226,9 @@ namespace NavMeshUpdater
         }
 
         // Open PM on forum for Bug Request
-        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
+        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
         // Open PM on forum for Feature Request
-        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=FeatureRequest:NavmeshUpdater&to=wired420");
+        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => OpenURL("https://www.redguides.com/community/conversations/add?title=FeatureRequest:NavmeshUpdater&to=wired420");
 
         private void Button1_Click(object sender, EventArgs e)
         {
@@ -326,11 +327,9 @@ namespace NavMeshUpdater
             Properties.Settings.Default.Save();
         }
 
-        public static void ErrorMessage(string title, string error) => MessageBox.Show(error, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        private static void ErrorMessage(string title, string error) => MessageBox.Show(error, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-        public bool downloadComplete = false;
-        public int counter;
-        public bool DownloadFile(string url, string fullPathWhereToSave, string filename)
+        private bool DownloadFile(string url, string fullPathWhereToSave, string filename)
         {
             try
             {
@@ -363,7 +362,7 @@ namespace NavMeshUpdater
             }
         }
 
-        public void WebClientDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        private void WebClientDownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             counter++;
             if (counter % 333 == 0)
@@ -373,7 +372,7 @@ namespace NavMeshUpdater
             }
         }
 
-        public void WebClientDownloadCompleted(object sender, AsyncCompletedEventArgs args)
+        private void WebClientDownloadCompleted(object sender, AsyncCompletedEventArgs args)
         {
             CurrentFile = "none";
             downloadComplete = true;
@@ -381,5 +380,20 @@ namespace NavMeshUpdater
             UpdateOverAllPct(doneCount, totalCount);
             UpdateUI();
         }
+        // For Generating File Hashes
+        private string CalculateMD5(string filename)
+        {
+            using (var md5 = MD5.Create())
+            {
+                using (var stream = File.OpenRead(filename))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+                }
+            }
+        }
+        // For opening a web browser.
+        public static void OpenURL(string url) => Process.Start(url);
+        
     }
 }

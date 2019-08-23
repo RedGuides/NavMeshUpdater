@@ -10,7 +10,7 @@ namespace NavMeshUpdater
         //The type of form to be displayed as the splash screen.
         private static SplashScreen splashForm;
 
-        static public void ShowSplashScreen()
+         public static void ShowSplashScreen()
         {
             // Make sure it is only launched once.
 
@@ -22,16 +22,16 @@ namespace NavMeshUpdater
             thread.Start();
         }
 
-        static private void ShowForm()
+         private static void ShowForm()
         {
             splashForm = new SplashScreen();
             Application.Run(splashForm);
         }
 
-        static public void CloseForm() => splashForm.Invoke(new CloseDelegate(SplashScreen.CloseFormInternal));
+         public static void CloseForm() => splashForm.Invoke(new CloseDelegate(SplashScreen.CloseFormInternal));
         
 
-        static private void CloseFormInternal()
+         private static void CloseFormInternal()
         {
             splashForm.Close();
             splashForm = null;
@@ -42,7 +42,7 @@ namespace NavMeshUpdater
             InitializeComponent();
         }
 
-        private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => Utility.OpenURL(Main.updaterJsonURL);
+        private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) => Main.OpenURL(Main.updaterJsonURL);
         
     }
 }
