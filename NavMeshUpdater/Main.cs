@@ -84,16 +84,27 @@ namespace NavMeshUpdater
 
         public void UpdateMissingFiles()
         {
-            if (localCount < remoteCount)
+            var zone = Zone.FromJson(RemoteFile);
+            if (DEBUG)
             {
-                missingCount = remoteCount - localCount;
-                label5.Text = "Missing Files: " + missingCount.ToString();
+                Console.WriteLine("#################### MISSING FILE STORE ####################");
             }
-            else
+            foreach (KeyValuePair<string, ZoneValue> z in zone.Zones)
             {
-                missingCount = 0;
-                label5.Text = "Missing Files: " + missingCount.ToString();
+                var str = z.ToString().Replace("[", "");
+                var wrd = str.Split(',');
+                if (!LocalFileStore.ContainsKey(wrd[0]))
+                {
+                    if (DEBUG)
+                    {
+                        Console.WriteLine(wrd[0].ToString() + "," + z.Value.Files.Mesh.Link.ToString());
+                    }
+                    MissingFileStore.Add(wrd[0].ToString(), z.Value.Files.Mesh.Link.ToString());
+                }
             }
+            missingCount = MissingFileStore.Count();
+            label5.Text = "Missing Files: " + missingCount.ToString();
+
         }
         public void GetRemoteUpdateFile()
         {
