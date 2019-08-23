@@ -179,19 +179,8 @@ namespace NavMeshUpdater
 
         }
 
-         Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("NavMeshUpdater.Resources.Newtonsoft.Json.dll"))
-            {
-                var assemblyData = new Byte[stream.Length];
-                stream.Read(assemblyData, 0, assemblyData.Length);
-                return Assembly.Load(assemblyData);
-            }
-        }
-
         public Main()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             InitializeComponent();
             if (!pInit)
             {
@@ -228,10 +217,11 @@ namespace NavMeshUpdater
             this.WindowState = FormWindowState.Normal;
         }
 
-        // Open PM on forum for Bug Request
-        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
-        // Open PM on forum for Feature Request
-        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => OpenURL("https://www.redguides.com/community/conversations/add?title=FeatureRequest:NavmeshUpdater&to=wired420");
+
+        // Open an email for Bug Report
+        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=BugReport&body=I%20Think%20I%20Found%20This%20Bug");
+        // Open an email for Feature Request
+        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=FeatureRequest&body=I%20Want%20This%20Feature");
 
         private void Button1_Click(object sender, EventArgs e)
         {

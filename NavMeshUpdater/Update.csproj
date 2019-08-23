@@ -99,9 +99,6 @@
     <EmbeddedResource Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="images\helm.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="images\compass-rose3.png" />
     <None Include="images\compass_rose3_icon.ico" />
   </ItemGroup>
