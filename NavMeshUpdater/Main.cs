@@ -206,10 +206,12 @@ namespace NavMeshUpdater
                 label3.Text = CurrentDownloadPct + "%";
                 label4.Text = OverallDownloadPct + "%";
                 groupBox1.Refresh();
-                pInit = true;
             }
             Thread.Sleep(2000);
             SplashScreen.CloseForm();
+            textBox1.Text = "Idle";
+            UpdateUI();
+            pInit = true;
         }
 
         // Open PM on forum for Bug Request
