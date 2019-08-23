@@ -30,10 +30,12 @@ namespace NavMeshUpdater
         public static Dictionary<string, string> MissingFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> ToUpdateFileStore = new Dictionary<string, string>();
         public static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
+        public static readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
 
         public void UpdateLocalCount()
         {
-            DirectoryInfo di = new DirectoryInfo(currentDirectory);
+            DirectoryInfo di = new DirectoryInfo(meshDirectory);
+            if (!di.Exists) { di.Create(); }
             var localFiles = di.GetFiles("*.navmesh", SearchOption.TopDirectoryOnly);
             // Create a dictionary to compare against for updates.
             if (DEBUG)
@@ -44,7 +46,7 @@ namespace NavMeshUpdater
             {
                 if (DEBUG)
                 {
-                    Console.WriteLine(file.Name.Replace(".navmesh", ""), Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
+                    Console.WriteLine(file.Name.Replace(".navmesh", "") + "," + Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
                 }
                 LocalFileStore.Add(file.Name.Replace(".navmesh", ""), Utility.CalculateMD5(file.FullName) + "|" + file.FullName);
             }
@@ -63,7 +65,7 @@ namespace NavMeshUpdater
                 }
                 foreach (KeyValuePair<string, ZoneValue> z in zone.Zones)
                 {
-                    var str = z.ToString().Replace("[","");
+                    var str = z.ToString().Replace("[", "");
                     var wrd = str.Split(',');
                     if (DEBUG)
                     {
@@ -76,7 +78,7 @@ namespace NavMeshUpdater
             }
             else
             {
-                ErrorMessage("Updater Failed","Updates file failed to download. No remote files found.");
+                ErrorMessage("Updater Failed", "Updates file failed to download. No remote files found.");
             }
         }
 
