@@ -25,7 +25,7 @@ namespace NavMeshUpdater
         public static int CurrentDownloadPct { get; set; } = 0;
         public static int OverallDownloadPct { get; set; } = 0;
         public static bool pDownloading = false;
-        public int localCount, remoteCount, missingCount, updateCount;
+        public int localCount, remoteCount, missingCount, updateCount, totalCount, doneCount;
         public static string RemoteFile;
         public static Dictionary<string, string> LocalFileStore = new Dictionary<string, string>();
         public static Dictionary<string, string> RemoteFileStore = new Dictionary<string, string>();
@@ -34,6 +34,12 @@ namespace NavMeshUpdater
         public static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
         public static readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
 
+        public void UpdateOverAllPct(int done, int total)
+        {
+            double calc = (done / total * 100);
+            OverallDownloadPct = (int)Math.Truncate(calc);
+            groupBox3.Refresh();
+        }
         public void UpdateLocalFiles()
         {
             DirectoryInfo di = new DirectoryInfo(meshDirectory);
@@ -198,13 +204,16 @@ namespace NavMeshUpdater
             {
                 button1.Enabled = false;
 
+                totalCount = MissingFileStore.Count() + ToUpdateFileStore.Count();
+                doneCount = 0;
+
                 button1.Enabled = true;
                 GetRemoteUpdateFile();
                 UpdateLocalFiles();
                 UpdateRemoteFiles();
                 UpdateMissingFiles();
                 CheckForUpdates();
-                Main.ActiveForm.Refresh();
+                groupBox1.Refresh();
             }
             else if (dr == DialogResult.No)
             {
