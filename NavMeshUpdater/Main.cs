@@ -3,6 +3,7 @@ using System.IO;
 using System.Net;
 using System.Linq;
 using System.Threading;
+using System.Reflection;
 using System.Windows.Forms;
 using System.ComponentModel;
 using System.Collections.Generic;
@@ -177,8 +178,19 @@ namespace NavMeshUpdater
 
         }
 
+        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("NavMeshUpdater.Resources.Newtonsoft.Json.dll"))
+            {
+                var assemblyData = new Byte[stream.Length];
+                stream.Read(assemblyData, 0, assemblyData.Length);
+                return Assembly.Load(assemblyData);
+            }
+        }
+
         public Main()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             InitializeComponent();
             if (!pInit)
             {
@@ -213,9 +225,9 @@ namespace NavMeshUpdater
         }
 
         // Open PM on forum for Bug Request
-        private void ReportBugToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
+        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
         // Open PM on forum for Feature Request
-        private void FeatureRequestToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=FeatureRequest:NavmeshUpdater&to=wired420");
+        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=FeatureRequest:NavmeshUpdater&to=wired420");
 
         private void Button1_Click(object sender, EventArgs e)
         {
@@ -300,8 +312,7 @@ namespace NavMeshUpdater
         }
 
         // Exit Application
-        private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
-        private void QuitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
+        private void ExitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
 
         private void CheckBox1_CheckedChanged(object sender, EventArgs e)
         {
