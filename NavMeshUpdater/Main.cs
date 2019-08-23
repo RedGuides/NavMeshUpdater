@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
+using System.Diagnostics;
+
 using Newtonsoft.Json;
 //using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -32,7 +34,7 @@ namespace NavMeshUpdater
         public static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
         public static readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
 
-        public void UpdateLocalCount()
+        public void UpdateLocalFiles()
         {
             DirectoryInfo di = new DirectoryInfo(meshDirectory);
             if (!di.Exists) { di.Create(); }
@@ -54,7 +56,7 @@ namespace NavMeshUpdater
             label1.Text = "Local Files: " + localCount.ToString();
         }
 
-        public void UpdateRemoteCount()
+        public void UpdateRemoteFiles()
         {
             var zone = Zone.FromJson(RemoteFile);
             if (zone.Zones.Count() > 0)
@@ -73,7 +75,7 @@ namespace NavMeshUpdater
                     }
                     RemoteFileStore.Add(wrd[0].ToString(), z.Value.Files.Mesh.Hash + "|" + z.Value.Files.Mesh.Size + "|" + z.Value.Expansion + "|" + z.Value.Files.Mesh.Link);
                 }
-                remoteCount = zone.Zones.Count();
+                remoteCount = (RemoteFileStore.Count() > 0) ? RemoteFileStore.Count() : 0;
                 label2.Text = "Remote Files: " + remoteCount.ToString();
             }
             else
@@ -102,10 +104,41 @@ namespace NavMeshUpdater
                     MissingFileStore.Add(wrd[0].ToString(), z.Value.Files.Mesh.Link.ToString());
                 }
             }
-            missingCount = MissingFileStore.Count();
+            missingCount = (MissingFileStore.Count() > 0) ? MissingFileStore.Count() : 0;
             label5.Text = "Missing Files: " + missingCount.ToString();
 
         }
+
+        public void CheckForUpdates()
+        {
+            var zone = Zone.FromJson(RemoteFile);
+            if (DEBUG)
+            {
+                Console.WriteLine("#################### TO UPDATE FILE STORE ####################");
+            }
+            foreach (KeyValuePair<string, ZoneValue> z in zone.Zones)
+            {
+                var str = z.ToString().Replace("[", "");
+                var wrd = str.Split(',');
+                if (LocalFileStore.TryGetValue(wrd[0], out string value))
+                {
+                    var lArray = value.Split('|');
+                    var lHash = lArray[0];
+                    var rHash = z.Value.Files.Mesh.Hash.ToString();
+                    if (lHash != rHash)
+                    {
+                        if (DEBUG)
+                        {
+                            Console.WriteLine(wrd[0] + "," + z.Value.Files.Mesh.Link.ToString());
+                        }
+                        ToUpdateFileStore.Add(wrd[0],z.Value.Files.Mesh.Link.ToString());
+                    }
+                }
+            }
+            updateCount = (ToUpdateFileStore.Count() > 0) ? ToUpdateFileStore.Count() : 0;
+            label6.Text = "Updates Needed: " + updateCount.ToString();
+        }
+
         public void GetRemoteUpdateFile()
         {
             try
@@ -132,10 +165,10 @@ namespace NavMeshUpdater
             if (!pInit)
             {
                 GetRemoteUpdateFile();
-                UpdateLocalCount();
-                UpdateRemoteCount();
+                UpdateLocalFiles();
+                UpdateRemoteFiles();
                 UpdateMissingFiles();
-                //CheckForUpdates();
+                CheckForUpdates();
                 label3.Text = CurrentDownloadPct + "%";
                 label4.Text = OverallDownloadPct + "%";
                 groupBox1.Refresh();
@@ -157,6 +190,28 @@ namespace NavMeshUpdater
         private void ReportBugToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=BugReport:NavmeshUpdater&to=wired420");
         // Open PM on forum for Feature Request
         private void FeatureRequestToolStripMenuItem_Click(object sender, EventArgs e) => Utility.OpenURL("https://www.redguides.com/community/conversations/add?title=FeatureRequest:NavmeshUpdater&to=wired420");
+
+        private void Button1_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = MessageBox.Show("Are you sure you wish to do this?" + Environment.NewLine + Environment.NewLine + "This will overwrite any custom meshes you have created. If you have not created any custom meshes, or wish to overwrite your custom meshes, you may proceed.", "Confirmation: Are you Sure?", MessageBoxButtons.YesNo,MessageBoxIcon.Warning);
+            if (dr == DialogResult.Yes)
+            {
+                button1.Enabled = false;
+
+                button1.Enabled = true;
+                GetRemoteUpdateFile();
+                UpdateLocalFiles();
+                UpdateRemoteFiles();
+                UpdateMissingFiles();
+                CheckForUpdates();
+                Main.ActiveForm.Refresh();
+            }
+            else if (dr == DialogResult.No)
+            {
+                ErrorMessage("Update Cancelled", "Update cancelled at user request.");
+            }
+        }
+
         // Exit Application
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
         private void QuitToolStripMenuItem_Click(object sender, EventArgs e) => Application.Exit();
