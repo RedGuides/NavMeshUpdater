@@ -18,9 +18,9 @@ namespace NavMeshUpdater
 {
     public partial class Main : Form
     {
-        private bool DEBUG = false;
+        private readonly bool DEBUG = false;
         public static readonly string updaterJsonURL = "https://rootswitch.com/mirror/MQ2/MQ2Nav/updater.json";
-        private bool pInit, downloadComplete;
+        private bool pInit, downloadComplete, listsCleared;
         private int CurrentDownloadPct { get; set; } = 0;
         private int OverallDownloadPct { get; set; } = 0;
         private int localCount, remoteCount, missingCount, updateCount, totalCount, doneCount, counter;
@@ -42,7 +42,7 @@ namespace NavMeshUpdater
             label5.Text = "Missing Files: " + missingCount.ToString();
             label6.Text = "Updates Needed: " + updateCount.ToString();
             groupBox2.Text = "Current File: " + CurrentFile;
-            
+
             if (ActiveForm != null && ActiveForm.Visible)
             {
                 ActiveForm.Refresh();
@@ -51,7 +51,7 @@ namespace NavMeshUpdater
 
         private void UpdateOverAllPct(int done, int total)
         {
-            int count = ((done*100)/total) + 1;
+            int count = ((done * 100) / total) + 1;
             OverallDownloadPct = count;
             UpdateUI();
         }
@@ -79,7 +79,7 @@ namespace NavMeshUpdater
 
         private void UpdateRemoteFiles()
         {
-            Zone zone = Zone.FromJson(RemoteFile);
+            var zone = Zone.FromJson(RemoteFile);
             if (zone.Zones.Count() > 0)
             {
                 if (DEBUG)
@@ -103,6 +103,99 @@ namespace NavMeshUpdater
             {
                 ErrorMessage("Updater Failed", "Updates file failed to download. No remote files found.");
             }
+        }
+
+        private int GetExpansionIndex(string expak)
+        {
+            int index;
+            switch(expak)
+            {
+                case "classic":
+                    index = 0;
+                    break;
+                case "kunark":
+                    index = 1;
+                    break;
+                case "sov":
+                    index = 2;
+                    break;
+                case "sol":
+                    index = 3;
+                    break;
+                case "pop":
+                    index = 4;
+                    break;
+                case "loy":
+                    index = 5;
+                    break;
+                case "ldon":
+                    index = 6;
+                    break;
+                case "god":
+                    index = 7;
+                    break;
+                case "oow":
+                    index = 8;
+                    break;
+                case "don":
+                    index = 9;
+                    break;
+                case "dodh":
+                    index = 10;
+                    break;
+                case "por":
+                    index = 11;
+                    break;
+                case "tss":
+                    index = 12;
+                    break;
+                case "tbs":
+                    index = 13;
+                    break;
+                case "sof":
+                    index = 14;
+                    break;
+                case "sod":
+                    index = 15;
+                    break;
+                case "uf":
+                    index = 16;
+                    break;
+                case "hot":
+                    index = 17;
+                    break;
+                case "voa":
+                    index = 18;
+                    break;
+                case "rof":
+                    index = 19;
+                    break;
+                case "cotf":
+                    index = 20;
+                    break;
+                case "tds":
+                    index = 21;
+                    break;
+                case "tbm":
+                    index = 22;
+                    break;
+                case "eok":
+                    index = 23;
+                    break;
+                case "ros":
+                    index = 24;
+                    break;
+                case "tbl":
+                    index = 25;
+                    break;
+                case "other":
+                    index = 26;
+                    break;
+                default:
+                    index = 26;
+                    break;
+            }
+            return index;
         }
 
         private void UpdateMissingFiles()
@@ -210,12 +303,12 @@ namespace NavMeshUpdater
                 SplashScreen.CloseForm();
                 pInit = true;
             }
-            Point LocPoint = new Point
+            Point WinLoc = new Point
             {
                 X = Properties.Settings.Default.LocX,
                 Y = Properties.Settings.Default.LocY
             };
-            this.Location = LocPoint;
+            this.Location = WinLoc;
             textBox1.Text = "Idle";
             UpdateUI();
             this.WindowState = FormWindowState.Minimized;
@@ -223,6 +316,18 @@ namespace NavMeshUpdater
             this.WindowState = FormWindowState.Normal;
         }
 
+        private void TabPage2_GotFocus(Object sender, EventArgs e)
+        {
+            if (!listsCleared)
+            {
+                MissingFileStore.Clear();
+                ToUpdateFileStore.Clear();
+                missingCount = 0;
+                updateCount = 0;
+                UpdateUI();
+                listsCleared = true;
+            }
+        }
 
         // Open an email for Bug Report
         private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=BugReport&body=I%20Think%20I%20Found%20This%20Bug");
@@ -320,6 +425,7 @@ namespace NavMeshUpdater
         // Exit Application
         private void ExitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
 
+
         private void MainForm_LocationChanged(object sender, EventArgs e)
         {
             Properties.Settings.Default.LocX = Location.X;
@@ -406,6 +512,6 @@ namespace NavMeshUpdater
         }
         // For opening a web browser.
         public static void OpenURL(string url) => Process.Start(url);
-        
+
     }
 }
