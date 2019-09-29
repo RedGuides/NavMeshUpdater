@@ -57,6 +57,8 @@
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.switchToPROToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -77,6 +79,8 @@
             // fileToolStripMenuItem1
             // 
             this.fileToolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.switchToPROToolStripMenuItem,
+            this.toolStripMenuItem2,
             this.exitToolStripMenuItem1});
             this.fileToolStripMenuItem1.Name = "fileToolStripMenuItem1";
             this.fileToolStripMenuItem1.Size = new System.Drawing.Size(37, 20);
@@ -102,14 +106,14 @@
             // bugReportToolStripMenuItem
             // 
             this.bugReportToolStripMenuItem.Name = "bugReportToolStripMenuItem";
-            this.bugReportToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.bugReportToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
             this.bugReportToolStripMenuItem.Text = "&Bug Report";
             this.bugReportToolStripMenuItem.Click += new System.EventHandler(this.BugReportToolStripMenuItem_Click);
             // 
             // featureRequestToolStripMenuItem1
             // 
             this.featureRequestToolStripMenuItem1.Name = "featureRequestToolStripMenuItem1";
-            this.featureRequestToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.featureRequestToolStripMenuItem1.Size = new System.Drawing.Size(158, 22);
             this.featureRequestToolStripMenuItem1.Text = "F&eature Request";
             this.featureRequestToolStripMenuItem1.Click += new System.EventHandler(this.FeatureRequestToolStripMenuItem1_Click);
             // 
@@ -322,6 +326,18 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Local Files: 0";
             // 
+            // switchToPROToolStripMenuItem
+            // 
+            this.switchToPROToolStripMenuItem.Name = "switchToPROToolStripMenuItem";
+            this.switchToPROToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.switchToPROToolStripMenuItem.Text = "Switch To &PRO";
+            this.switchToPROToolStripMenuItem.Click += new System.EventHandler(this.SwitchToPROToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem2
+            // 
+            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(177, 6);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -378,6 +394,8 @@
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ToolStripMenuItem switchToPROToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
     }
 }
 

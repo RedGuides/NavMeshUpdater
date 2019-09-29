@@ -330,9 +330,9 @@ namespace NavMeshUpdater
         }
 
         // Open an email for Bug Report
-        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=BugReport&body=I%20Think%20I%20Found%20This%20Bug");
+        private void BugReportToolStripMenuItem_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=BugReport.NavUp&body=I%20Think%20I%20Found%20This%20Bug");
         // Open an email for Feature Request
-        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=FeatureRequest&body=I%20Want%20This%20Feature");
+        private void FeatureRequestToolStripMenuItem1_Click(object sender, EventArgs e) => OpenURL("mailto:wired420@gmail.com?subject=FeatureRequest.NavUp&body=I%20Want%20This%20Feature");
 
         private void Button1_Click(object sender, EventArgs e)
         {
@@ -425,6 +425,17 @@ namespace NavMeshUpdater
         // Exit Application
         private void ExitToolStripMenuItem1_Click(object sender, EventArgs e) => Application.Exit();
 
+        private void SwitchToPROToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(currentDirectory + "\\MeshUpdaterPro.exe")) {
+                Process.Start(currentDirectory + "\\MeshUpdaterPro.exe");
+                Application.Exit();
+            }
+            else
+            {
+                ErrorMessage("Switch To Pro", "MeshUpdaterPro.exe does not exist in your macroquest directory. Please download it, and place it in the correct directory then try again.");
+            }
+        }
 
         private void MainForm_LocationChanged(object sender, EventArgs e)
         {
