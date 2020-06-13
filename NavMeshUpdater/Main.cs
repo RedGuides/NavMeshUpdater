@@ -19,7 +19,7 @@ namespace NavMeshUpdater
     public partial class Main : Form
     {
         private readonly bool DEBUG = false;
-        public static readonly string updaterJsonURL = "https://rootswitch.com/mirror/MQ2/MQ2Nav/updater.json";
+        public static readonly string updaterJsonURL = "https://mqmesh.com/updater.json";
         private bool pInit, downloadComplete, listsCleared;
         private int CurrentDownloadPct { get; set; } = 0;
         private int OverallDownloadPct { get; set; } = 0;
@@ -261,6 +261,7 @@ namespace NavMeshUpdater
                 {
                     using (var wc = new WebClient())
                     {
+                        ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
                         RemoteFile = wc.DownloadString(updaterJsonURL);
                     }
                 }
