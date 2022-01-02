@@ -30,7 +30,7 @@ namespace NavMeshUpdater
         private Dictionary<string, string> MissingFileStore = new Dictionary<string, string>();
         private Dictionary<string, string> ToUpdateFileStore = new Dictionary<string, string>();
         private static readonly string currentDirectory = Path.GetDirectoryName(Application.ExecutablePath);
-        private readonly string meshDirectory = currentDirectory + "\\MQ2Nav";
+        private readonly string meshDirectory = currentDirectory + "\\resources\\MQ2Nav";
 
         private void UpdateUI()
         {
